@@ -13,8 +13,8 @@ jobs:
 
       - name: Create Folder for certificates and profiles
         run: |
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          mkdir -p ~/Library/MobileDevice/Certificates/
+          mkdir -p /Users/runner/Library/MobileDevice/Provisioning\ Profiles
+          mkdir -p /Users/runner/Library/MobileDevice/Certificates/
        
        # decode and save the p12 and provisioning files stored as secrets
       - name: Get Certificate
@@ -25,7 +25,7 @@ jobs:
           encodedString: ${{ secrets.P12_BASE64 }}
 
       - name: Copy Certificate
-        run: mv ${{ steps.certFileDecode.outputs.filePath }} ~/Library/MobileDevice/Certificates/certificate.p12
+        run: mv ${{ steps.certFileDecode.outputs.filePath }} /Users/runner/Library/MobileDevice/Certificates/certificate.p12
        
       - name: Get Profile
         id: profFileDecode
@@ -35,10 +35,10 @@ jobs:
           encodedString: ${{ secrets.MOBILEPROVISION_BASE64 }}
 
       - name: Copy Profiles
-        run: mv ${{ steps.profFileDecode.outputs.filePath }} ~/Library/MobileDevice/Provisioning\ Profiles/decoded.mobileprovision
+        run: mv ${{ steps.profFileDecode.outputs.filePath }} /Users/runner/Library/MobileDevice/Provisioning\ Profiles/decoded.mobileprovision
 
       #install the necessary dependencies
-      - name: Install python and codemagic tools
+      - name: Install python
         uses: actions/setup-python@v2
         with:
           python-version: 3.7
@@ -49,7 +49,7 @@ jobs:
       - name: Initialize Keychain with certificate
         run: |
           keychain initialize
-          keychain add-certificates --certificate ~/Library/MobileDevice/Certificates/certificate.p12 --certificate-password ${{ secrets.CERT_PASSWORD }}
+          keychain add-certificates --certificate /Users/runner/Library/MobileDevice/Certificates/certificate.p12 --certificate-password ${{ secrets.CERT_PASSWORD }}
     
       #install flutter
       - name: Install flutter
@@ -69,7 +69,7 @@ jobs:
           xcode-project build-ipa --workspace ios/Runner.xcworkspace --scheme Runner --config Release
 
       #collect the files            
-      - name: collect ipa artifacts
+      - name: Collect ipa artifacts
         uses: actions/upload-artifact@v2
         with:
           name: adhoc-ipa
